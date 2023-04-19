@@ -11,7 +11,7 @@ func main() {
 		AppName: "vsp",
 	})
 
-	app.Get("/*", func(c *fiber.Ctx) error {
+	app.All("/*", func(c *fiber.Ctx) error {
 		targetUrl := c.Params("*")
 		log.Println("targetUrl", targetUrl)
 		if targetUrl == "favicon.ico" {
