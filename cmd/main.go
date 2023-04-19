@@ -3,25 +3,23 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
-	"net/url"
+	"log"
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		AppName: "vsp",
+	})
 
-	app.Get("/:url", func(c *fiber.Ctx) error {
-		targetUrl := c.Params("url")
-		println("targetUrl", targetUrl)
-		target, err := url.Parse(targetUrl)
-		if err != nil {
-			return err
+	app.Get("/*", func(c *fiber.Ctx) error {
+		targetUrl := c.Params("*")
+		log.Println("targetUrl", targetUrl)
+		if targetUrl == "favicon.ico" {
+			// TODO
+			return nil
 		}
 
-		println("target", target.Host, target.RequestURI())
-		// 创建 fasthttp.HostClient 对象来处理 HTTP 请求
-		client := &fasthttp.HostClient{
-			Addr: target.Host,
-		}
+		client := &fasthttp.Client{}
 
 		// 获取 GoFiber 的请求和响应对象
 		ctx := c.Context()
@@ -34,7 +32,7 @@ func main() {
 
 		// 发送 fasthttp.Request 对象，并获取 fasthttp.Response 对象
 		resp := &fasthttp.Response{}
-		err = client.Do(req, resp)
+		err := client.Do(req, resp)
 		if err != nil {
 			return err
 		}
@@ -47,5 +45,5 @@ func main() {
 		return nil
 	})
 
-	app.Listen(":3000")
+	log.Fatal(app.Listen(":3000"))
 }
